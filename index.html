@@ -2,34 +2,18 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Generator Ujian Otomatis</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 8px; }
-    button { margin-top: 12px; padding: 10px 20px; }
-  </style>
+  <title>Generator Form Ujian</title>
 </head>
 <body>
-  <h2>Generator Form Ujian Otomatis</h2>
-  <label>Judul Ujian:</label>
-  <input id="judul" placeholder="Contoh: ASAT X TAHFIDZ" />
-  
-  <label>Link Google Form (embed):</label>
-  <input id="link" placeholder="Link Google Form embed" />
-  
-  <label>Tanggal Mulai (YYYY-MM-DD):</label>
-  <input id="tanggal" type="date" />
-  
-  <label>Jam Mulai (HH:MM):</label>
-  <input id="jam" type="time" />
-  
-  <label>Durasi Ujian (menit):</label>
-  <input id="durasi" type="number" value="90" />
-
+  <h2>Generator Form Ujian ASAT</h2>
+  <input id="judul" placeholder="Judul Ujian"><br>
+  <input id="link" placeholder="Link Google Form (embed)"><br>
+  <input id="tanggal" type="date"><br>
+  <input id="jam" type="time"><br>
+  <input id="durasi" type="number" value="90" placeholder="Durasi (menit)"><br><br>
   <button onclick="generate()">Buat HTML</button>
-
-  <h3>Output HTML:</h3>
-  <textarea id="output" rows="20" readonly></textarea>
+  <br><br>
+  <textarea id="output" rows="20" cols="80" readonly placeholder="Hasil HTML akan muncul di sini..."></textarea>
 
   <script>
     function generate() {
@@ -39,130 +23,24 @@
       const jam = document.getElementById("jam").value;
       const durasi = parseInt(document.getElementById("durasi").value);
 
-      const datetime = `${tanggal}T${jam}:00+07:00`;
-      
-      const html = `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${judul}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f8f8f8; }
-    #timer { background-color: #FF5403; color: white; font-weight: bold; padding: 10px 20px; border-radius: 0 0 10px 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .info-section { margin: 5px 10px; }
-    #form { display: none; }
-    iframe { width: 100%; height: calc(100vh - 70px); border: none; }
-    #not-ready { text-align: center; padding: 30px; font-size: 1.2rem; font-weight: bold; color: #ff5403; }
-    @media screen and (max-width: 600px) {
-      #timer { flex-direction: column; text-align: center; }
-    }
-  </style>
-</head>
-<body>
-  <audio id="warning-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
-
-  <div id="timer">
-    <div class="info-section"><i class="fa fa-book"></i> ${judul}</div>
-    <div class="info-section"><i class="fa fa-calendar"></i> Mulai: <span id="start-date"></span></div>
-    <div class="info-section"><i class="fa fa-clock-o"></i> Timer: <span id="time">--:--</span></div>
-  </div>
-
-  <div id="not-ready">Menghubungkan ke server waktu...</div>
-
-  <div id="form">
-    <iframe src="${link}" allowfullscreen>LOADING</iframe>
-  </div>
-
-  <script>
-    const waktuMulaiResmi = new Date("${datetime}");
-    const durasiUjian = 60 * ${durasi};
-    const maxTampil = durasiUjian + 60 * 5;
-    let sisaDetik = null;
-    let timerInterval;
-
-    function formatTanggalIndo(date) {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const formattedDate = date.toLocaleDateString('id-ID', options);
-      const formattedTime = date.toLocaleTimeString('id-ID');
-      return \`\${formattedDate}, \${formattedTime}\`;
-    }
-
-    function tampilkanWaktuAkses(date, sumber = "server") {
-      const el = document.getElementById("start-date");
-      el.textContent = formatTanggalIndo(date);
-      if (sumber !== "server") el.textContent += " (waktu lokal)";
-    }
-
-    function mulaiTimer(totalDetik) {
-      const display = document.getElementById("time");
-      const audio = document.getElementById("warning-sound");
-
-      let saved = localStorage.getItem("sisaDetik");
-      sisaDetik = saved ? parseInt(saved) : totalDetik;
-
-      timerInterval = setInterval(() => {
-        let minutes = Math.floor(sisaDetik / 60);
-        let seconds = sisaDetik % 60;
-
-        display.textContent = \`\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')} Menit !\`;
-
-        if (sisaDetik === 300) audio.play();
-        if (sisaDetik <= 0) display.textContent = "WAKTU HABIS";
-        if (sisaDetik <= -300) {
-          document.getElementById("form").style.display = "none";
-          clearInterval(timerInterval);
-        }
-
-        localStorage.setItem("sisaDetik", sisaDetik);
-        sisaDetik--;
-      }, 1000);
-    }
-
-    async function dapatkanWaktuServer() {
-      try {
-        const res1 = await fetch("https://worldtimeapi.org/api/timezone/Asia/Jakarta");
-        const data1 = await res1.json();
-        return new Date(data1.datetime);
-      } catch {
-        try {
-          const res2 = await fetch("https://api.timeapi.io/api/Time/current/zone?timeZone=Asia/Jakarta");
-          const data2 = await res2.json();
-          return new Date(\`\${data2.date}T\${data2.time}\`);
-        } catch {
-          return null;
-        }
-      }
-    }
-
-    async function mulaiSistem() {
-      let now = await dapatkanWaktuServer();
-      let sumber = "server";
-
-      if (!now) {
-        now = new Date();
-        sumber = "lokal";
-        document.getElementById("not-ready").textContent = "Gagal akses server waktu. Menggunakan waktu perangkat!";
+      if (!judul || !link || !tanggal || !jam || isNaN(durasi)) {
+        alert("Harap isi semua kolom dengan benar!");
+        return;
       }
 
-      tampilkanWaktuAkses(now, sumber);
+      const waktuMulai = new Date(`${tanggal}T${jam}:00+07:00`).toISOString();
 
-      if (now >= waktuMulaiResmi) {
-        document.getElementById("form").style.display = "block";
-        document.getElementById("not-ready").style.display = "none";
-        mulaiTimer(durasiUjian);
-      } else {
-        document.getElementById("not-ready").textContent = \`Soal belum tersedia. Silakan tunggu hingga: \${formatTanggalIndo(waktuMulaiResmi)} WIB\`;
-      }
-    }
+      const hasilHTML = `
+<!-- Generated HTML -->
+<script>
+const waktuMulaiResmi = new Date("${waktuMulai}");
+const durasiUjian = 60 * ${durasi};
+</script>
+<!-- Tambahkan script utama Anda di sini -->
+<iframe src="${link}" style="width:100%;height:90vh;border:none;" allowfullscreen></iframe>
+`;
 
-    window.onload = () => mulaiSistem();
-  </script>
-</body>
-</html>`;
-      
-      document.getElementById("output").value = html;
+      document.getElementById("output").value = hasilHTML.trim();
     }
   </script>
 </body>
