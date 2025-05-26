@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <meta charset="UTF-8">
+  <title>Generator Ujian Otomatis</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 8px; }
+    button { margin-top: 12px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h2>Generator Form Ujian Otomatis</h2>
+  <label>Judul Ujian:</label>
+  <input id="judul" placeholder="Contoh: ASAT X TAHFIDZ" />
+  
+  <label>Link Google Form (embed):</label>
+  <input id="link" placeholder="Link Google Form embed" />
+  
+  <label>Tanggal Mulai (YYYY-MM-DD):</label>
+  <input id="tanggal" type="date" />
+  
+  <label>Jam Mulai (HH:MM):</label>
+  <input id="jam" type="time" />
+  
+  <label>Durasi Ujian (menit):</label>
+  <input id="durasi" type="number" value="90" />
+
+  <button onclick="generate()">Buat HTML</button>
+
+  <h3>Output HTML:</h3>
+  <textarea id="output" rows="20" readonly></textarea>
+
+  <script>
+    function generate() {
+      const judul = document.getElementById("judul").value;
+      const link = document.getElementById("link").value;
+      const tanggal = document.getElementById("tanggal").value;
+      const jam = document.getElementById("jam").value;
+      const durasi = parseInt(document.getElementById("durasi").value);
+
+      const datetime = `${tanggal}T${jam}:00+07:00`;
+      
+      const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASAT X TAHFIDZ</title>
+  <title>${judul}</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-    }
-    #timer {
-      background-color: #FF5403;
-      color: white;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 0 0 10px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .info-section {
-      margin: 5px 10px;
-    }
-    #form {
-      display: none;
-    }
-    iframe {
-      width: 100%;
-      height: calc(100vh - 70px);
-      border: none;
-    }
-    #not-ready {
-      text-align: center;
-      padding: 30px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #ff5403;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f8f8f8; }
+    #timer { background-color: #FF5403; color: white; font-weight: bold; padding: 10px 20px; border-radius: 0 0 10px 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .info-section { margin: 5px 10px; }
+    #form { display: none; }
+    iframe { width: 100%; height: calc(100vh - 70px); border: none; }
+    #not-ready { text-align: center; padding: 30px; font-size: 1.2rem; font-weight: bold; color: #ff5403; }
     @media screen and (max-width: 600px) {
-      #timer {
-        flex-direction: column;
-        text-align: center;
-      }
+      #timer { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
@@ -52,7 +64,7 @@
   <audio id="warning-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
 
   <div id="timer">
-    <div class="info-section"><i class="fa fa-book"></i> ASAT X TAHFIDZ</div>
+    <div class="info-section"><i class="fa fa-book"></i> ${judul}</div>
     <div class="info-section"><i class="fa fa-calendar"></i> Mulai: <span id="start-date"></span></div>
     <div class="info-section"><i class="fa fa-clock-o"></i> Timer: <span id="time">--:--</span></div>
   </div>
@@ -60,14 +72,12 @@
   <div id="not-ready">Menghubungkan ke server waktu...</div>
 
   <div id="form">
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSf3z81ziLIZ1vb5DiC3f8ZwjRHrREiea6nalBNDdYOKwAR31w/viewform?embedded=true" allowfullscreen>
-      LOADING
-    </iframe>
+    <iframe src="${link}" allowfullscreen>LOADING</iframe>
   </div>
 
   <script>
-    const waktuMulaiResmi = new Date("2025-05-27T08:00:00+07:00"); // WIB
-    const durasiUjian = 60 * 90;
+    const waktuMulaiResmi = new Date("${datetime}");
+    const durasiUjian = 60 * ${durasi};
     const maxTampil = durasiUjian + 60 * 5;
     let sisaDetik = null;
     let timerInterval;
@@ -76,7 +86,7 @@
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       const formattedDate = date.toLocaleDateString('id-ID', options);
       const formattedTime = date.toLocaleTimeString('id-ID');
-      return `${formattedDate}, ${formattedTime}`;
+      return \`\${formattedDate}, \${formattedTime}\`;
     }
 
     function tampilkanWaktuAkses(date, sumber = "server") {
@@ -96,16 +106,10 @@
         let minutes = Math.floor(sisaDetik / 60);
         let seconds = sisaDetik % 60;
 
-        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} Menit !`;
+        display.textContent = \`\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')} Menit !\`;
 
-        if (sisaDetik === 300) {
-          audio.play();
-        }
-
-        if (sisaDetik <= 0) {
-          display.textContent = "WAKTU HABIS";
-        }
-
+        if (sisaDetik === 300) audio.play();
+        if (sisaDetik <= 0) display.textContent = "WAKTU HABIS";
         if (sisaDetik <= -300) {
           document.getElementById("form").style.display = "none";
           clearInterval(timerInterval);
@@ -121,13 +125,13 @@
         const res1 = await fetch("https://worldtimeapi.org/api/timezone/Asia/Jakarta");
         const data1 = await res1.json();
         return new Date(data1.datetime);
-      } catch (e1) {
+      } catch {
         try {
           const res2 = await fetch("https://api.timeapi.io/api/Time/current/zone?timeZone=Asia/Jakarta");
           const data2 = await res2.json();
-          return new Date(`${data2.date}T${data2.time}`);
-        } catch (e2) {
-          return null; // Gagal semua
+          return new Date(\`\${data2.date}T\${data2.time}\`);
+        } catch {
+          return null;
         }
       }
     }
@@ -149,13 +153,17 @@
         document.getElementById("not-ready").style.display = "none";
         mulaiTimer(durasiUjian);
       } else {
-        document.getElementById("not-ready").textContent = `Soal belum tersedia. Silakan tunggu hingga: ${formatTanggalIndo(waktuMulaiResmi)} WIB`;
+        document.getElementById("not-ready").textContent = \`Soal belum tersedia. Silakan tunggu hingga: \${formatTanggalIndo(waktuMulaiResmi)} WIB\`;
       }
     }
 
-    window.onload = () => {
-      mulaiSistem();
-    };
+    window.onload = () => mulaiSistem();
+  </script>
+</body>
+</html>`;
+      
+      document.getElementById("output").value = html;
+    }
   </script>
 </body>
 </html>
