@@ -60,20 +60,76 @@
   <div id="not-ready">Menghubungkan ke server waktu...</div>
 
   <div id="form">
-    <iframe src="{{FORM_URL}}" allowfullscreen>
+    <iframe src="{{FORM_URL}}?embedded=true" allowfullscreen>
       LOADING
     </iframe>
   </div>
 
   <script>
-    // CONFIGURABLE PARAMETERS
     const waktuMulaiResmi = new Date("{{START_TIME}}");
     const durasiUjian = {{DURATION}};
     const maxTampil = durasiUjian + 60 * 5;
     const peringatanDetik = {{WARNING_TIME}};
 
-    // REST OF THE TIMER CODE...
-    // ... (masukkan semua kode timer asli di bagian ini) ...
+    function formatTanggalIndo(date) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return date.toLocaleDateString('id-ID', options) + ' ' + date.toLocaleTimeString('id-ID');
+    }
+
+    async function dapatkanWaktuServer() {
+      try {
+        const res = await fetch("https://worldtimeapi.org/api/timezone/Asia/Jakarta");
+        const data = await res.json();
+        return new Date(data.datetime);
+      } catch {
+        return new Date();
+      }
+    }
+
+    async function mulaiSistem() {
+      const serverNow = await dapatkanWaktuServer();
+      document.getElementById('start-date').textContent = formatTanggalIndo(serverNow);
+      
+      if (serverNow >= waktuMulaiResmi) {
+        document.getElementById('form').style.display = 'block';
+        document.getElementById('not-ready').style.display = 'none';
+        mulaiTimer();
+      } else {
+        document.getElementById('not-ready').textContent = `Ujian akan dimulai pada: ${formatTanggalIndo(waktuMulaiResmi)}`;
+      }
+    }
+
+    function mulaiTimer() {
+      const display = document.getElementById('time');
+      const audio = document.getElementById('warning-sound');
+      let startTime = Date.now();
+      
+      const update = () => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const sisaDetik = durasiUjian - elapsed;
+        
+        if (sisaDetik <= peringatanDetik && sisaDetik > 0) {
+          audio.play();
+        }
+        
+        if (sisaDetik <= 0) {
+          display.textContent = "WAKTU HABIS";
+          if (sisaDetik <= -300) {
+            document.getElementById('form').style.display = 'none';
+          }
+          return;
+        }
+        
+        const menit = Math.floor(sisaDetik / 60);
+        const detik = sisaDetik % 60;
+        display.textContent = `${menit.toString().padStart(2, '0')}:${detik.toString().padStart(2, '0')}`;
+      };
+      
+      setInterval(update, 1000);
+      update();
+    }
+
+    window.onload = mulaiSistem;
   </script>
 </body>
 </html>
