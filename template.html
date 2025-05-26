@@ -113,8 +113,8 @@
         }
         
         if (sisaDetik <= 0) {
-          display.textContent = "WAKTU HABIS";
-          if (sisaDetik <= -300) {
+          display.textContent = "WAKTU UJIAN SUDAH SELESAI|TERSISA 2 MENIT UNTUK KIRIM JAWABAN SEBELUM AKSES SOAL DITUTUP";
+          if (sisaDetik <= -120) {
             document.getElementById('form').style.display = 'none';
           }
           return;
