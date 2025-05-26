@@ -2,245 +2,45 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Form Generator ASAT X TAHFIDZ</title>
+  <title>Dashboard Admin - Generator Link Ujian</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f0f0f0;
-      max-width: 900px;
-      margin: auto;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      box-sizing: border-box;
-      font-family: monospace;
-    }
-    button {
-      padding: 10px 20px;
-      background: #FF5403;
-      border: none;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-    pre {
-      background: #eee;
-      padding: 15px;
-      overflow: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      max-height: 400px;
-    }
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px 0; padding: 10px; width: 100%; max-width: 400px; }
+    #output { margin-top: 20px; font-weight: bold; color: green; word-break: break-word; }
   </style>
 </head>
 <body>
-  <h2>Form Generator ASAT X TAHFIDZ</h2>
+  <h2>Form Generator Link Ujian Google Form</h2>
 
-  <label for="formUrl">Link Google Form (Embed URL):</label>
-  <input type="text" id="formUrl" placeholder="https://docs.google.com/forms/d/e/..." />
+  <label>Masukkan ID Google Form:</label>
+  <input type="text" id="formId" placeholder="Contoh: 1FAIpQLSf...">
 
-  <label for="startTime">Waktu Mulai (Format: YYYY-MM-DDTHH:MM:SS+07:00):</label>
-  <input type="text" id="startTime" value="2025-05-27T08:00:00+07:00" />
+  <label>Masukkan Tanggal & Jam Mulai Ujian (WIB):</label>
+  <input type="datetime-local" id="startTime">
 
-  <label for="duration">Durasi Ujian (menit):</label>
-  <input type="number" id="duration" value="90" min="1" />
+  <label>Durasi Ujian (menit):</label>
+  <input type="number" id="duration" placeholder="Contoh: 60">
 
-  <button id="generateBtn">Generate HTML</button>
+  <button onclick="generateLink()">Buat Link Ujian</button>
 
-  <h3>Hasil Kode HTML:</h3>
-  <pre id="outputCode">(Klik Generate HTML untuk melihat kode)</pre>
-
-  <script>
-    document.getElementById('generateBtn').addEventListener('click', () => {
-      const formUrl = document.getElementById('formUrl').value.trim();
-      const startTime = document.getElementById('startTime').value.trim();
-      const duration = parseInt(document.getElementById('duration').value.trim(), 10);
-
-      if (!formUrl) {
-        alert("Isi link Google Form terlebih dahulu.");
-        return;
-      }
-      if (!startTime) {
-        alert("Isi waktu mulai terlebih dahulu.");
-        return;
-      }
-      if (!duration || duration <= 0) {
-        alert("Durasi ujian harus lebih dari 0.");
-        return;
-      }
-
-      const fullHtml = `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASAT X TAHFIDZ</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-    }
-    #timer {
-      background-color: #FF5403;
-      color: white;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 0 0 10px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .info-section {
-      margin: 5px 10px;
-    }
-    #form {
-      display: none;
-    }
-    iframe {
-      width: 100%;
-      height: calc(100vh - 70px);
-      border: none;
-    }
-    #not-ready {
-      text-align: center;
-      padding: 30px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #ff5403;
-    }
-    @media screen and (max-width: 600px) {
-      #timer {
-        flex-direction: column;
-        text-align: center;
-      }
-    }
-  </style>
-</head>
-<body>
-  <audio id="warning-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
-
-  <div id="timer">
-    <div class="info-section"><i class="fa fa-book"></i> ASAT X TAHFIDZ</div>
-    <div class="info-section"><i class="fa fa-calendar"></i> Mulai: <span id="start-date"></span></div>
-    <div class="info-section"><i class="fa fa-clock-o"></i> Timer: <span id="time">--:--</span></div>
-  </div>
-
-  <div id="not-ready">Menghubungkan ke server waktu...</div>
-
-  <div id="form">
-    <iframe src="${formUrl}" allowfullscreen>LOADING</iframe>
-  </div>
+  <div id="output"></div>
 
   <script>
-    const waktuMulaiResmi = new Date("${startTime}"); 
-    const durasiUjian = 60 * ${duration};
-    const maxTampil = durasiUjian + 60 * 5;
-    let sisaDetik = null;
-    let timerInterval;
+    function generateLink() {
+      const formId = document.getElementById("formId").value.trim();
+      const startTime = document.getElementById("startTime").value;
+      const duration = document.getElementById("duration").value;
 
-    function formatTanggalIndo(date) {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const formattedDate = date.toLocaleDateString('id-ID', options);
-      const formattedTime = date.toLocaleTimeString('id-ID');
-      return \`\${formattedDate}, \${formattedTime}\`;
-    }
-
-    function tampilkanWaktuAkses(date, sumber = "server") {
-      const el = document.getElementById("start-date");
-      el.textContent = formatTanggalIndo(date);
-      if (sumber !== "server") el.textContent += " (waktu lokal)";
-    }
-
-    function mulaiTimer(totalDetik) {
-      const display = document.getElementById("time");
-      const audio = document.getElementById("warning-sound");
-
-      let saved = localStorage.getItem("sisaDetik");
-      sisaDetik = saved ? parseInt(saved) : totalDetik;
-
-      timerInterval = setInterval(() => {
-        let minutes = Math.floor(sisaDetik / 60);
-        let seconds = sisaDetik % 60;
-
-        display.textContent = \`\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')} Menit !\`;
-
-        if (sisaDetik === 300) {
-          audio.play();
-        }
-
-        if (sisaDetik <= 0) {
-          display.textContent = "WAKTU HABIS";
-        }
-
-        if (sisaDetik <= -300) {
-          document.getElementById("form").style.display = "none";
-          clearInterval(timerInterval);
-        }
-
-        localStorage.setItem("sisaDetik", sisaDetik);
-        sisaDetik--;
-      }, 1000);
-    }
-
-    async function dapatkanWaktuServer() {
-      try {
-        const res1 = await fetch("https://worldtimeapi.org/api/timezone/Asia/Jakarta");
-        const data1 = await res1.json();
-        return new Date(data1.datetime);
-      } catch (e1) {
-        try {
-          const res2 = await fetch("https://api.timeapi.io/api/Time/current/zone?timeZone=Asia/Jakarta");
-          const data2 = await res2.json();
-          return new Date(\`\${data2.date}T\${data2.time}\`);
-        } catch (e2) {
-          return null;
-        }
-      }
-    }
-
-    async function mulaiSistem() {
-      let now = await dapatkanWaktuServer();
-      let sumber = "server";
-
-      if (!now) {
-        now = new Date();
-        sumber = "lokal";
-        document.getElementById("not-ready").textContent = "Gagal akses server waktu. Menggunakan waktu perangkat!";
+      if (!formId || !startTime || !duration) {
+        alert("Mohon lengkapi semua kolom.");
+        return;
       }
 
-      tampilkanWaktuAkses(now, sumber);
+      const encodedTime = encodeURIComponent(startTime);
+      const link = `https://domainanda.com/asat.html?formid=${formId}&start=${encodedTime}&durasi=${duration}`;
 
-      if (now >= waktuMulaiResmi) {
-        document.getElementById("form").style.display = "block";
-        document.getElementById("not-ready").style.display = "none";
-        mulaiTimer(durasiUjian);
-      } else {
-        document.getElementById("not-ready").textContent = \`Soal belum tersedia. Silakan tunggu hingga: \${formatTanggalIndo(waktuMulaiResmi)} WIB\`;
-      }
+      document.getElementById("output").innerHTML = `Link Ujian: <br><a href="${link}" target="_blank">${link}</a>`;
     }
-
-    window.onload = () => {
-      mulaiSistem();
-    };
-  </script>
-</body>
-</html>`;
-
-      document.getElementById('outputCode').textContent = fullHtml;
-    });
   </script>
 </body>
 </html>
