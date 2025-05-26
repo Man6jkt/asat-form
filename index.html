@@ -39,9 +39,15 @@
         <button onclick="generateCode()"><i class="fas fa-magic"></i> Generate Code</button>
         
         <div id="output" class="hidden">
-            <h3><i class="fas fa-code"></i> Kode HTML:</h3>
+            <div class="header-output">
+                <h3><i class="fas fa-code"></i> Kode HTML:</h3>
+                <button id="copyButton" class="copy-btn">
+                    <i class="far fa-copy"></i> Salin
+                </button>
+            </div>
             <pre id="generatedCode"></pre>
-            <p><i class="fas fa-info-circle"></i> Simpan kode ini sebagai file HTML dan upload ke GitHub Pages</p>
+            <p id="copyStatus"></p>
+            <p class="info"><i class="fas fa-info-circle"></i> Simpan kode ini sebagai file HTML dan upload ke GitHub Pages</p>
         </div>
     </div>
 
