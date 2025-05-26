@@ -68,3 +68,47 @@ pre {
 .hidden {
     display: none;
 }
+
+.header-output {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.copy-btn {
+    background: #28a745;
+    padding: 8px 15px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s;
+}
+
+.copy-btn:hover {
+    background: #218838;
+}
+
+.copy-btn.success {
+    background: #218838;
+}
+
+.copy-btn.error {
+    background: #dc3545;
+}
+
+#copyStatus {
+    color: #28a745;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 5px;
+    height: 20px;
+}
+
+.info {
+    color: #666;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 15px;
+}
