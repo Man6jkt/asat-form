@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{EVENT_NAME}}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+    }
+    #timer {
+      background-color: #FF5403;
+      color: white;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 0 0 10px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .info-section {
+      margin: 5px 10px;
+    }
+    #form {
+      display: none;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100vh - 70px);
+      border: none;
+    }
+    #not-ready {
+      text-align: center;
+      padding: 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ff5403;
+    }
+    @media screen and (max-width: 600px) {
+      #timer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <audio id="warning-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
+  <div id="timer">
+    <div class="info-section"><i class="fa fa-book"></i> {{EVENT_NAME}}</div>
+    <div class="info-section"><i class="fa fa-calendar"></i> Mulai: <span id="start-date"></span></div>
+    <div class="info-section"><i class="fa fa-clock-o"></i> Timer: <span id="time">--:--</span></div>
+  </div>
+
+  <div id="not-ready">Menghubungkan ke server waktu...</div>
+
+  <div id="form">
+    <iframe src="{{FORM_URL}}" allowfullscreen>
+      LOADING
+    </iframe>
+  </div>
+
+  <script>
+    // CONFIGURABLE PARAMETERS
+    const waktuMulaiResmi = new Date("{{START_TIME}}");
+    const durasiUjian = {{DURATION}};
+    const maxTampil = durasiUjian + 60 * 5;
+    const peringatanDetik = {{WARNING_TIME}};
+
+    // REST OF THE TIMER CODE...
+    // ... (masukkan semua kode timer asli di bagian ini) ...
+  </script>
+</body>
+</html>
