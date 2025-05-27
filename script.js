@@ -23,7 +23,7 @@ async function generateCode() {
 
     // Format waktu mulai
     const startDate = new Date(config.startTime);
-    const isoDate = startDate.toISOString().replace('Z','+07:00');
+    const isoDate = startDate.toISOString().replace('Z','+00:00');
     
     // Ambil template
     let template;
