@@ -1,5 +1,4 @@
 async function generateCode() {
-    // Ambil nilai input
     const config = {
         eventName: document.getElementById('eventName').value.trim() || 'ASAT X TAHFIDZ',
         startTime: document.getElementById('startTime').value,
@@ -13,7 +12,7 @@ async function generateCode() {
         alert('Waktu mulai harus diisi!');
         return;
     }
-    
+
     try {
         new URL(config.formUrl);
     } catch {
@@ -21,10 +20,10 @@ async function generateCode() {
         return;
     }
 
-    // Format waktu mulai
-    const startDate = new Date(config.startTime);
-    const isoDate = startDate.toISOString().replace('Z','+00:00');
-    
+    // Konversi waktu lokal ke format ISO +07:00 (WIB)
+    const [datePart, timePart] = config.startTime.split('T');
+    const isoDate = `${datePart}T${timePart}:00+07:00`;
+
     // Ambil template
     let template;
     try {
@@ -46,15 +45,14 @@ async function generateCode() {
     // Tampilkan output
     const output = document.getElementById('output');
     const codePre = document.getElementById('generatedCode');
-    
+
     codePre.textContent = htmlCode;
     output.classList.remove('hidden');
 
-    // Tambahkan event listener untuk tombol salin
+    // Tombol salin
     const copyBtn = document.getElementById('copyButton');
     copyBtn.addEventListener('click', copyCode);
-    
-    // Scroll ke hasil
+
     output.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -65,23 +63,23 @@ async function copyCode() {
 
     try {
         await navigator.clipboard.writeText(code);
-        
+
         btn.classList.add('success');
         btn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
         status.textContent = 'Kode berhasil disalin ke clipboard';
-        
+
         setTimeout(() => {
             btn.classList.remove('success');
             btn.innerHTML = '<i class="far fa-copy"></i> Salin';
             status.textContent = '';
         }, 2000);
-        
+
     } catch (err) {
         console.error('Gagal menyalin:', err);
         btn.classList.add('error');
         btn.innerHTML = '<i class="fas fa-times"></i> Gagal';
         status.textContent = 'Gagal menyalin. Salin manual dari teks di atas.';
-        
+
         setTimeout(() => {
             btn.classList.remove('error');
             btn.innerHTML = '<i class="far fa-copy"></i> Salin';
@@ -90,33 +88,18 @@ async function copyCode() {
     }
 }
 
-// Event listener untuk input waktu
-document.getElementById('startTime').addEventListener('change', function() {
-    const localDate = new Date(this.value);
-    const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric', 
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Asia/Jakarta'
-    };
-    
-    document.getElementById('eventName').dispatchEvent(new Event('input'));
-});
-
-// Auto-fill waktu sekarang
+// Tampilkan waktu lokal di input saat halaman dimuat
 window.onload = () => {
     const now = new Date();
-    const timeInput = document.getElementById('startTime');
     const offset = now.getTimezoneOffset() * 60000;
     const localISOTime = new Date(now - offset).toISOString().slice(0, 16);
-    
+
+    const timeInput = document.getElementById('startTime');
     timeInput.value = localISOTime;
     timeInput.min = localISOTime;
 };
 
+// Placeholder fallback template
 async function loadFallbackTemplate() {
     return `<!DOCTYPE html>
 <html lang="id">
